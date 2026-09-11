@@ -4,7 +4,6 @@ const path = require('path');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const flash = require('connect-flash');
-const mongoose = require('mongoose');
 const connectDB = require('./config/db');
 const { initExpiryCron } = require('./middleware/expiryMiddleware');
 
@@ -17,11 +16,10 @@ const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/foodshare';
 
 // Connect Database
-connectDB().catch((err) => {
-  console.error('Fatal Database Connection Error:', err.message);
-});
+connectDB();
 
 // Body Parser Middleware
 app.use(express.urlencoded({ extended: true }));
@@ -32,7 +30,7 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Express Session Configuration (re-uses existing Mongoose connection)
+// Express Session Configuration
 const sessionConfig = {
   secret: process.env.SESSION_SECRET || 'foodshare_default_secret_key_2026',
   resave: false,
@@ -42,7 +40,7 @@ const sessionConfig = {
     httpOnly: true,
   },
   store: MongoStore.create({
-    clientPromise: mongoose.connection.asPromise().then((m) => m.getClient()),
+    mongoUrl: MONGODB_URI,
     ttl: 24 * 60 * 60, // 1 day
     autoRemove: 'native',
   }),
@@ -56,9 +54,9 @@ app.use(flash());
 // Global Variables Middleware (makes session user & flash messages accessible in all EJS templates)
 app.use((req, res, next) => {
   res.locals.user = (req.session && req.session.user) ? req.session.user : null;
-  res.locals.success_msg = req.flash('success_msg');
-  res.locals.error_msg = req.flash('error_msg');
-  res.locals.error = req.flash('error');
+  res.locals.success_msg = req.flash ? req.flash('success_msg') : [];
+  res.locals.error_msg = req.flash ? req.flash('error_msg') : [];
+  res.locals.error = req.flash ? req.flash('error') : [];
   next();
 });
 
@@ -85,9 +83,7 @@ app.use((err, req, res, next) => {
   if (res.headersSent) {
     return next(err);
   }
-  res.status(500).render('404', {
-    title: '500 - Server Error - FoodShare',
-  });
+  res.status(500).send('Server Error. Please refresh or try again later.');
 });
 
 // Start Express Server
