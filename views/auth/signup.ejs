@@ -1,0 +1,92 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="main-content">
+  <div class="form-card" style="max-width: 650px;">
+    <div style="text-align: center; margin-bottom: 1.5rem;">
+      <h1 style="font-size: 1.75rem; color: var(--primary-dark);">Create Your Account</h1>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">Join FoodShare as a Food Donor or NGO / Volunteer</p>
+    </div>
+
+    <%- include('../partials/flash') %>
+
+    <% if (errors && errors.length > 0) { %>
+      <div class="alert alert-error">
+        <ul style="list-style-type: none;">
+          <% errors.forEach(function(err) { %>
+            <li><i class="fa-solid fa-circle-exclamation"></i> <%= err.msg %></li>
+          <% }); %>
+        </ul>
+      </div>
+    <% } %>
+
+    <form action="/auth/signup" method="POST" id="signupForm">
+      <!-- Role Selector -->
+      <div class="form-group">
+        <label for="role"><i class="fa-solid fa-user-tag"></i> Select Account Type</label>
+        <select id="role" name="role" required style="font-weight: 600;">
+          <option value="donor" <%= formData.role === 'donor' ? 'selected' : '' %>>Food Donor (Restaurant, Hotel, Hostel, Event Host)</option>
+          <option value="ngo" <%= formData.role === 'ngo' ? 'selected' : '' %>>NGO / Volunteer (Food Bank, Shelter, Charity)</option>
+        </select>
+        <div class="form-help">Select whether you plan to donate surplus food or collect food for redistribution.</div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="name"><i class="fa-solid fa-user"></i> Full Name / Contact Person</label>
+          <input type="text" id="name" name="name" value="<%= formData.name || '' %>" placeholder="e.g. John Doe" required>
+        </div>
+
+        <div class="form-group">
+          <label for="organizationName"><i class="fa-solid fa-building"></i> Organization / Business Name</label>
+          <input type="text" id="organizationName" name="organizationName" value="<%= formData.organizationName || '' %>" placeholder="e.g. Green Bakery / Care Foundation">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="email"><i class="fa-solid fa-envelope"></i> Email Address</label>
+          <input type="email" id="email" name="email" value="<%= formData.email || '' %>" placeholder="e.g. name@domain.com" required>
+        </div>
+
+        <div class="form-group">
+          <label for="phone"><i class="fa-solid fa-phone"></i> Phone Number</label>
+          <input type="text" id="phone" name="phone" value="<%= formData.phone || '' %>" placeholder="e.g. +1 555-0199" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="address"><i class="fa-solid fa-location-dot"></i> Physical Address / Pickup Location</label>
+        <input type="text" id="address" name="address" value="<%= formData.address || '' %>" placeholder="Street address, building, floor..." required>
+      </div>
+
+      <div class="form-group">
+        <label for="pincode"><i class="fa-solid fa-map-pin"></i> Pincode / Area Zip Code</label>
+        <input type="text" id="pincode" name="pincode" value="<%= formData.pincode || '' %>" placeholder="e.g. 10001 or 560001" required>
+        <div class="form-help">Used to match available food with nearby NGOs in the same postal code.</div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="password"><i class="fa-solid fa-lock"></i> Password</label>
+          <input type="password" id="password" name="password" placeholder="At least 6 characters" required minlength="6">
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword"><i class="fa-solid fa-lock"></i> Confirm Password</label>
+          <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Repeat password" required>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block" style="margin-top: 1rem;">
+        <i class="fa-solid fa-user-plus"></i> Create Account
+      </button>
+    </form>
+
+    <div style="text-align: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.9rem; color: var(--text-muted);">
+      Already registered? <a href="/auth/login" style="font-weight: 600;">Log in here</a>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,85 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="main-content">
+  <div class="form-card" style="max-width: 650px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <h1 style="font-size: 1.6rem; color: var(--primary-dark);">Post Surplus Food</h1>
+      <a href="/donor/dashboard" class="btn btn-secondary btn-sm">
+        <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+      </a>
+    </div>
+
+    <%- include('../partials/flash') %>
+
+    <% if (errors && errors.length > 0) { %>
+      <div class="alert alert-error">
+        <ul style="list-style-type: none;">
+          <% errors.forEach(function(err) { %>
+            <li><i class="fa-solid fa-circle-exclamation"></i> <%= err.msg %></li>
+          <% }); %>
+        </ul>
+      </div>
+    <% } %>
+
+    <form action="/donor/create" method="POST">
+      <div class="form-group">
+        <label for="foodType"><i class="fa-solid fa-utensils"></i> Food Title / Description</label>
+        <input type="text" id="foodType" name="foodType" value="<%= formData.foodType || '' %>" placeholder="e.g. 50 Packets Cooked Rice & Curry / Fresh Pastries" required autofocus>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="quantity"><i class="fa-solid fa-calculator"></i> Quantity</label>
+          <input type="number" id="quantity" name="quantity" value="<%= formData.quantity || '' %>" placeholder="e.g. 40" min="1" required>
+        </div>
+
+        <div class="form-group">
+          <label for="unit"><i class="fa-solid fa-scale-balanced"></i> Unit</label>
+          <select id="unit" name="unit" required>
+            <option value="servings" <%= formData.unit === 'servings' ? 'selected' : '' %>>Servings / Plates</option>
+            <option value="kg" <%= formData.unit === 'kg' ? 'selected' : '' %>>Kilograms (Kg)</option>
+            <option value="packets" <%= formData.unit === 'packets' ? 'selected' : '' %>>Packets</option>
+            <option value="boxes" <%= formData.unit === 'boxes' ? 'selected' : '' %>>Boxes</option>
+            <option value="liters" <%= formData.unit === 'liters' ? 'selected' : '' %>>Liters</option>
+            <option value="meals" <%= formData.unit === 'meals' ? 'selected' : '' %>>Full Meals</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="pickupLocation"><i class="fa-solid fa-location-dot"></i> Pickup Address</label>
+        <input type="text" id="pickupLocation" name="pickupLocation" value="<%= formData.pickupLocation || '' %>" placeholder="Full address, building floor, kitchen entry..." required>
+      </div>
+
+      <div class="form-group">
+        <label for="pincode"><i class="fa-solid fa-map-pin"></i> Area Pincode / Postal Code</label>
+        <input type="text" id="pincode" name="pincode" value="<%= formData.pincode || '' %>" placeholder="e.g. 10001 or 560001" required>
+        <div class="form-help">NGOs search available food feed based on this pincode/area code.</div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="prepTime"><i class="fa-solid fa-clock"></i> Preparation Time</label>
+          <input type="datetime-local" id="prepTime" name="prepTime" value="<%= formData.prepTime || '' %>" required>
+        </div>
+
+        <div class="form-group">
+          <label for="expiryTime"><i class="fa-solid fa-hourglass-end"></i> Expiry Time (Safe Consumption Limit)</label>
+          <input type="datetime-local" id="expiryTime" name="expiryTime" value="<%= formData.expiryTime || '' %>" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="notes"><i class="fa-solid fa-note-sticky"></i> Additional Notes / Handling Instructions (Optional)</label>
+        <textarea id="notes" name="notes" rows="3" placeholder="e.g. Vegetarian only, kept in insulated containers, bring carry boxes for pickup..."><%= formData.notes || '' %></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block" style="margin-top: 1rem;">
+        <i class="fa-solid fa-paper-plane"></i> Publish Donation Post
+      </button>
+    </form>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

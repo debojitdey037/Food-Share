@@ -1,0 +1,119 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar', { activeTab: 'feed' }) %>
+
+<main class="main-content">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h1 style="font-size: 1.75rem; color: var(--primary-dark);">Available Surplus Food Feed</h1>
+      <p style="color: var(--text-muted);">Real-time food donations waiting for pickup. Sorted by soonest expiry first.</p>
+    </div>
+    <a href="/ngo/history" class="btn btn-secondary">
+      <i class="fa-solid fa-truck-ramp-box"></i> View My Claimed Donations
+    </a>
+  </div>
+
+  <%- include('../partials/flash') %>
+
+  <!-- Search & Filter Bar (Stretch Goal: Pincode / Area Text Match) -->
+  <div class="filter-bar">
+    <form action="/ngo/feed" method="GET" class="search-form">
+      <input type="text" name="search" value="<%= searchQuery %>" placeholder="Filter by Pincode, Address area, or Food type..." style="flex: 1;">
+      <button type="submit" class="btn btn-primary">
+        <i class="fa-solid fa-magnifying-glass"></i> Search Area
+      </button>
+      <% if (searchQuery) { %>
+        <a href="/ngo/feed" class="btn btn-secondary" title="Clear Filter">
+          <i class="fa-solid fa-xmark"></i> Clear
+        </a>
+      <% } %>
+    </form>
+
+    <div style="font-size: 0.9rem; color: var(--text-muted);">
+      Showing <strong><%= donations.length %></strong> available post(s)
+      <% if (searchQuery) { %> matching "<strong><%= searchQuery %></strong>" <% } %>
+    </div>
+  </div>
+
+  <!-- Feed Cards Grid -->
+  <% if (donations.length === 0) { %>
+    <div class="card" style="text-align: center; padding: 3rem 1.5rem;">
+      <i class="fa-solid fa-square-poll-vertical" style="font-size: 3rem; color: var(--text-light); margin-bottom: 1rem;"></i>
+      <h3>No Available Food Found</h3>
+      <p style="color: var(--text-muted);">
+        <% if (searchQuery) { %>
+          No donations match your area query "<strong><%= searchQuery %></strong>". Try searching another pincode or clear filter.
+        <% } else { %>
+          There are currently no active surplus food posts. Check back soon!
+        <% } %>
+      </p>
+    </div>
+  <% } else { %>
+    <div class="grid-3">
+      <% donations.forEach(function(item) { %>
+        <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; position: relative;">
+          <!-- Expiry countdown badge -->
+          <% 
+            const now = new Date();
+            const exp = new Date(item.expiryTime);
+            const diffHours = Math.max(0, Math.round((exp - now) / (1000 * 60 * 60)));
+          %>
+          
+          <div>
+            <div class="card-header">
+              <div>
+                <span class="badge badge-Available">
+                  <i class="fa-solid fa-clock"></i> Expires in ~<%= diffHours %> hour(s)
+                </span>
+              </div>
+              <span class="user-badge" style="background: var(--primary-light); color: var(--primary-dark);">
+                <i class="fa-solid fa-map-pin"></i> <%= item.pincode %>
+              </span>
+            </div>
+
+            <h3 class="card-title" style="margin-bottom: 0.5rem; font-size: 1.2rem; color: var(--primary-dark);">
+              <%= item.foodType %>
+            </h3>
+
+            <div style="font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin-bottom: 1rem;">
+              <i class="fa-solid fa-box-open" style="color: var(--primary);"></i> <%= item.quantity %> <%= item.unit %>
+            </div>
+
+            <div style="font-size: 0.9rem; margin-bottom: 0.6rem;">
+              <i class="fa-solid fa-store" style="color: var(--text-muted); width: 20px;"></i>
+              <strong>Donor:</strong> <%= item.donorId ? (item.donorId.organizationName || item.donorId.name) : 'Anonymous Donor' %>
+            </div>
+
+            <div style="font-size: 0.9rem; margin-bottom: 0.6rem;">
+              <i class="fa-solid fa-location-dot" style="color: var(--danger); width: 20px;"></i>
+              <strong>Address:</strong> <%= item.pickupLocation %>
+            </div>
+
+            <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.6rem;">
+              <i class="fa-solid fa-hourglass-start" style="width: 20px;"></i>
+              Prep Time: <%= new Date(item.prepTime).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %>
+            </div>
+
+            <div style="font-size: 0.85rem; color: #b45309; margin-bottom: 1rem;">
+              <i class="fa-solid fa-hourglass-end" style="width: 20px;"></i>
+              Expiry Time: <strong><%= new Date(item.expiryTime).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %></strong>
+            </div>
+
+            <% if (item.notes) { %>
+              <div style="background: var(--bg-main); padding: 0.75rem; border-radius: var(--radius-sm); font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem; border-left: 3px solid var(--primary);">
+                <strong><i class="fa-solid fa-circle-info"></i> Notes:</strong> <%= item.notes %>
+              </div>
+            <% } %>
+          </div>
+
+          <form action="/ngo/accept/<%= item._id %>" method="POST" style="margin-top: 1rem;">
+            <button type="submit" class="btn btn-primary btn-block">
+              <i class="fa-solid fa-hand-holding-hand"></i> Accept & Reserve Food Pickup
+            </button>
+          </form>
+        </div>
+      <% }); %>
+    </div>
+  <% } %>
+</main>
+
+<%- include('../partials/footer') %>

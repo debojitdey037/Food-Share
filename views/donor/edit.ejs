@@ -1,0 +1,84 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="main-content">
+  <div class="form-card" style="max-width: 650px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <h1 style="font-size: 1.6rem; color: var(--primary-dark);">Edit Donation Post</h1>
+      <a href="/donor/dashboard" class="btn btn-secondary btn-sm">
+        <i class="fa-solid fa-arrow-left"></i> Cancel & Return
+      </a>
+    </div>
+
+    <%- include('../partials/flash') %>
+
+    <% if (errors && errors.length > 0) { %>
+      <div class="alert alert-error">
+        <ul style="list-style-type: none;">
+          <% errors.forEach(function(err) { %>
+            <li><i class="fa-solid fa-circle-exclamation"></i> <%= err.msg %></li>
+          <% }); %>
+        </ul>
+      </div>
+    <% } %>
+
+    <form action="/donor/edit/<%= donation._id %>" method="POST">
+      <div class="form-group">
+        <label for="foodType"><i class="fa-solid fa-utensils"></i> Food Title / Description</label>
+        <input type="text" id="foodType" name="foodType" value="<%= donation.foodType %>" required>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="quantity"><i class="fa-solid fa-calculator"></i> Quantity</label>
+          <input type="number" id="quantity" name="quantity" value="<%= donation.quantity %>" min="1" required>
+        </div>
+
+        <div class="form-group">
+          <label for="unit"><i class="fa-solid fa-scale-balanced"></i> Unit</label>
+          <select id="unit" name="unit" required>
+            <option value="servings" <%= donation.unit === 'servings' ? 'selected' : '' %>>Servings / Plates</option>
+            <option value="kg" <%= donation.unit === 'kg' ? 'selected' : '' %>>Kilograms (Kg)</option>
+            <option value="packets" <%= donation.unit === 'packets' ? 'selected' : '' %>>Packets</option>
+            <option value="boxes" <%= donation.unit === 'boxes' ? 'selected' : '' %>>Boxes</option>
+            <option value="liters" <%= donation.unit === 'liters' ? 'selected' : '' %>>Liters</option>
+            <option value="meals" <%= donation.unit === 'meals' ? 'selected' : '' %>>Full Meals</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="pickupLocation"><i class="fa-solid fa-location-dot"></i> Pickup Address</label>
+        <input type="text" id="pickupLocation" name="pickupLocation" value="<%= donation.pickupLocation %>" required>
+      </div>
+
+      <div class="form-group">
+        <label for="pincode"><i class="fa-solid fa-map-pin"></i> Area Pincode / Postal Code</label>
+        <input type="text" id="pincode" name="pincode" value="<%= donation.pincode %>" required>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="prepTime"><i class="fa-solid fa-clock"></i> Preparation Time</label>
+          <input type="datetime-local" id="prepTime" name="prepTime" value="<%= prepTimeFormatted %>" required>
+        </div>
+
+        <div class="form-group">
+          <label for="expiryTime"><i class="fa-solid fa-hourglass-end"></i> Expiry Time</label>
+          <input type="datetime-local" id="expiryTime" name="expiryTime" value="<%= expiryTimeFormatted %>" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="notes"><i class="fa-solid fa-note-sticky"></i> Additional Notes / Instructions</label>
+        <textarea id="notes" name="notes" rows="3"><%= donation.notes || '' %></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block" style="margin-top: 1rem;">
+        <i class="fa-solid fa-floppy-disk"></i> Update Post
+      </button>
+    </form>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

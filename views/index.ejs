@@ -1,0 +1,125 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<main class="main-content">
+  <%- include('partials/flash') %>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <h1 class="hero-title">Bridging Surplus Food to Communities in Need</h1>
+    <p class="hero-subtitle">
+      FoodShare connects restaurants, event organizers, and households with verified local NGOs and volunteers for fast, seamless food pickup and redistribution.
+    </p>
+    <div class="hero-ctas">
+      <% if (!user) { %>
+        <a href="/auth/signup?role=donor" class="btn btn-primary" style="background-color: #ffffff; color: var(--primary-dark);">
+          <i class="fa-solid fa-store"></i> I Want to Donate Food
+        </a>
+        <a href="/auth/signup?role=ngo" class="btn btn-secondary" style="background: rgba(255, 255, 255, 0.2); color: #ffffff; border-color: rgba(255, 255, 255, 0.4);">
+          <i class="fa-solid fa-building-ngo"></i> Join as NGO / Volunteer
+        </a>
+      <% } else if (user.role === 'donor') { %>
+        <a href="/donor/create" class="btn btn-primary" style="background-color: #ffffff; color: var(--primary-dark);">
+          <i class="fa-solid fa-plus-circle"></i> Post Surplus Food Now
+        </a>
+        <a href="/donor/dashboard" class="btn btn-secondary" style="background: rgba(255, 255, 255, 0.2); color: #ffffff; border-color: rgba(255, 255, 255, 0.4);">
+          <i class="fa-solid fa-gauge"></i> My Dashboard
+        </a>
+      <% } else if (user.role === 'ngo') { %>
+        <a href="/ngo/feed" class="btn btn-primary" style="background-color: #ffffff; color: var(--primary-dark);">
+          <i class="fa-solid fa-utensils"></i> Browse Available Food Feed
+        </a>
+      <% } else if (user.role === 'admin') { %>
+        <a href="/admin/dashboard" class="btn btn-primary" style="background-color: #ffffff; color: var(--primary-dark);">
+          <i class="fa-solid fa-user-shield"></i> Open Admin Control Panel
+        </a>
+      <% } %>
+    </div>
+  </section>
+
+  <!-- Real-time Impact Metrics -->
+  <section style="margin-bottom: 3.5rem;">
+    <h2 style="font-size: 1.5rem; margin-bottom: 1.25rem; text-align: center;">Our Real-Time Platform Impact</h2>
+    <div class="grid-4">
+      <div class="stat-card">
+        <div class="stat-icon green">
+          <i class="fa-solid fa-boxes-packing"></i>
+        </div>
+        <div>
+          <div class="stat-value"><%= stats.totalDonations %></div>
+          <div class="stat-label">Total Donations Posted</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon blue">
+          <i class="fa-solid fa-hand-holding-heart"></i>
+        </div>
+        <div>
+          <div class="stat-value"><%= stats.totalFoodRedistributed %></div>
+          <div class="stat-label">Units/Servings Redistributed</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon amber">
+          <i class="fa-solid fa-bell"></i>
+        </div>
+        <div>
+          <div class="stat-value"><%= stats.availableCount %></div>
+          <div class="stat-label">Ready for Pickup Now</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon purple">
+          <i class="fa-solid fa-people-group"></i>
+        </div>
+        <div>
+          <div class="stat-value"><%= stats.ngoCount + stats.donorCount %></div>
+          <div class="stat-label">Active Donors & NGOs</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section style="margin-bottom: 3rem;">
+    <h2 style="font-size: 1.6rem; text-align: center; margin-bottom: 2rem;">How FoodShare Operates</h2>
+    
+    <div class="grid-3">
+      <div class="card" style="text-align: center; padding: 2rem 1.5rem;">
+        <div style="width: 60px; height: 60px; background: var(--primary-light); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 1.25rem auto;">
+          <i class="fa-solid fa-pen-to-square"></i>
+        </div>
+        <h3 style="margin-bottom: 0.5rem; font-size: 1.2rem;">1. Donors Post Food</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">
+          Restaurants or event organizers enter surplus food details, quantity, prep time, expiry window, and pickup location pincode.
+        </p>
+      </div>
+
+      <div class="card" style="text-align: center; padding: 2rem 1.5rem;">
+        <div style="width: 60px; height: 60px; background: #e0f2fe; color: #0284c7; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 1.25rem auto;">
+          <i class="fa-solid fa-location-dot"></i>
+        </div>
+        <h3 style="margin-bottom: 0.5rem; font-size: 1.2rem;">2. NGOs Match & Claim</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">
+          Verified NGOs filter available food by pincode or area, sorted by soonest expiry, and lock claims instantly.
+        </p>
+      </div>
+
+      <div class="card" style="text-align: center; padding: 2rem 1.5rem;">
+        <div style="width: 60px; height: 60px; background: #fef3c7; color: #d97706; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 1.25rem auto;">
+          <i class="fa-solid fa-truck-fast"></i>
+        </div>
+        <h3 style="margin-bottom: 0.5rem; font-size: 1.2rem;">3. Pickup & Redistribution</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">
+          Volunteers pick up the food and update status from Accepted to Picked Up to Completed in real-time.
+        </p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<%- include('partials/footer') %>

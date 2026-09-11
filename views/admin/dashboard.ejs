@@ -1,0 +1,111 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar', { activeTab: 'donations' }) %>
+
+<main class="main-content">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h1 style="font-size: 1.75rem; color: var(--primary-dark);">Admin Control Center - All Donations</h1>
+      <p style="color: var(--text-muted);">Platform-wide food donation audit & monitoring panel</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+      <a href="/admin/users" class="btn btn-secondary btn-sm">
+        <i class="fa-solid fa-users-gear"></i> User Management
+      </a>
+      <a href="/admin/stats" class="btn btn-primary btn-sm">
+        <i class="fa-solid fa-chart-line"></i> Analytics & Impact
+      </a>
+    </div>
+  </div>
+
+  <%- include('../partials/flash') %>
+
+  <!-- Status Filter Bar -->
+  <div class="filter-bar">
+    <form action="/admin/dashboard" method="GET" style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+      <label for="status" style="margin: 0; font-weight: 600;">Filter by Status:</label>
+      <select id="status" name="status" onchange="this.form.submit()" style="width: auto; padding: 0.4rem 0.8rem;">
+        <option value="ALL" <%= currentStatusFilter === 'ALL' ? 'selected' : '' %>>All Statuses</option>
+        <option value="Available" <%= currentStatusFilter === 'Available' ? 'selected' : '' %>>Available</option>
+        <option value="Accepted" <%= currentStatusFilter === 'Accepted' ? 'selected' : '' %>>Accepted</option>
+        <option value="PickedUp" <%= currentStatusFilter === 'PickedUp' ? 'selected' : '' %>>Picked Up</option>
+        <option value="Completed" <%= currentStatusFilter === 'Completed' ? 'selected' : '' %>>Completed</option>
+        <option value="Cancelled" <%= currentStatusFilter === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+        <option value="Expired" <%= currentStatusFilter === 'Expired' ? 'selected' : '' %>>Expired</option>
+      </select>
+    </form>
+
+    <div style="font-size: 0.9rem; color: var(--text-muted);">
+      Total Records: <strong><%= donations.length %></strong>
+    </div>
+  </div>
+
+  <!-- Donations Table -->
+  <% if (donations.length === 0) { %>
+    <div class="card" style="text-align: center; padding: 3rem 1.5rem;">
+      <i class="fa-solid fa-inbox" style="font-size: 3rem; color: var(--text-light); margin-bottom: 1rem;"></i>
+      <h3>No Donations Found</h3>
+      <p style="color: var(--text-muted);">No donation records match status '<%= currentStatusFilter %>'.</p>
+    </div>
+  <% } else { %>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>ID / Posted Date</th>
+            <th>Food Item & Quantity</th>
+            <th>Donor Info</th>
+            <th>Location & Pincode</th>
+            <th>Status</th>
+            <th>Claimed By (NGO)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% donations.forEach(function(item) { %>
+            <tr>
+              <td style="font-size: 0.85rem; color: var(--text-muted);">
+                <div>#<%= item._id.toString().substring(18) %></div>
+                <div><i class="fa-solid fa-calendar-day"></i> <%= new Date(item.createdAt).toLocaleDateString() %></div>
+              </td>
+              <td>
+                <strong><%= item.foodType %></strong>
+                <div>
+                  <span class="user-badge">
+                    <%= item.quantity %> <%= item.unit %>
+                  </span>
+                </div>
+              </td>
+              <td style="font-size: 0.85rem;">
+                <% if (item.donorId) { %>
+                  <div><strong><%= item.donorId.organizationName || item.donorId.name %></strong></div>
+                  <div><%= item.donorId.email %></div>
+                  <div><i class="fa-solid fa-phone"></i> <%= item.donorId.phone %></div>
+                <% } else { %>
+                  <span style="color: var(--text-muted);">Deleted Donor</span>
+                <% } %>
+              </td>
+              <td style="font-size: 0.85rem;">
+                <div><i class="fa-solid fa-location-dot" style="color: var(--danger);"></i> <%= item.pickupLocation %></div>
+                <div>Pincode: <strong><%= item.pincode %></strong></div>
+              </td>
+              <td>
+                <span class="badge badge-<%= item.status %>">
+                  <i class="fa-solid fa-circle"></i> <%= item.status %>
+                </span>
+              </td>
+              <td style="font-size: 0.85rem;">
+                <% if (item.acceptedBy) { %>
+                  <div><strong><%= item.acceptedBy.organizationName || item.acceptedBy.name %></strong></div>
+                  <div><%= item.acceptedBy.email %></div>
+                <% } else { %>
+                  <span style="color: var(--text-muted); font-style: italic;">Unclaimed</span>
+                <% } %>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</main>
+
+<%- include('../partials/footer') %>

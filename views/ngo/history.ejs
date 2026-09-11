@@ -1,0 +1,97 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar', { activeTab: 'history' }) %>
+
+<main class="main-content">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h1 style="font-size: 1.75rem; color: var(--primary-dark);">My Claimed Food & Pickup History</h1>
+      <p style="color: var(--text-muted);">Track active pickups and update redistribution status</p>
+    </div>
+    <a href="/ngo/feed" class="btn btn-outline">
+      <i class="fa-solid fa-utensils"></i> Browse Available Food Feed
+    </a>
+  </div>
+
+  <%- include('../partials/flash') %>
+
+  <% if (donations.length === 0) { %>
+    <div class="card" style="text-align: center; padding: 3rem 1.5rem;">
+      <i class="fa-solid fa-truck-ramp-box" style="font-size: 3rem; color: var(--text-light); margin-bottom: 1rem;"></i>
+      <h3>No Claimed Donations Yet</h3>
+      <p style="color: var(--text-muted); margin-bottom: 1.5rem;">You haven't accepted any surplus food donations. Browse the available feed to claim food!</p>
+      <a href="/ngo/feed" class="btn btn-primary">
+        <i class="fa-solid fa-magnifying-glass"></i> Find Available Food
+      </a>
+    </div>
+  <% } else { %>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Food Item & Quantity</th>
+            <th>Donor Contact & Address</th>
+            <th>Expiry Deadline</th>
+            <th>Current Status</th>
+            <th>Update Pickup Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% donations.forEach(function(item) { %>
+            <tr>
+              <td>
+                <strong style="font-size: 1rem;"><%= item.foodType %></strong>
+                <br>
+                <span class="user-badge" style="margin-top: 0.25rem;">
+                  <i class="fa-solid fa-weight-hanging"></i> <%= item.quantity %> <%= item.unit %>
+                </span>
+                <% if (item.notes) { %>
+                  <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.3rem;">
+                    <i class="fa-solid fa-note-sticky"></i> <%= item.notes %>
+                  </div>
+                <% } %>
+              </td>
+              <td style="font-size: 0.9rem;">
+                <div><strong><%= item.donorId ? (item.donorId.organizationName || item.donorId.name) : 'Donor' %></strong></div>
+                <div><i class="fa-solid fa-phone" style="color: var(--primary);"></i> <%= item.donorId ? item.donorId.phone : 'N/A' %></div>
+                <div><i class="fa-solid fa-location-dot" style="color: var(--danger);"></i> <%= item.pickupLocation %> (<%= item.pincode %>)</div>
+              </td>
+              <td style="font-size: 0.85rem;">
+                <div><i class="fa-solid fa-hourglass-end" style="color: var(--warning);"></i> <strong><%= new Date(item.expiryTime).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %></strong></div>
+              </td>
+              <td>
+                <span class="badge badge-<%= item.status %>">
+                  <i class="fa-solid fa-circle"></i> <%= item.status %>
+                </span>
+              </td>
+              <td>
+                <% if (item.status === 'Accepted') { %>
+                  <form action="/ngo/status/<%= item._id %>" method="POST">
+                    <input type="hidden" name="newStatus" value="PickedUp">
+                    <button type="submit" class="btn btn-primary btn-sm">
+                      <i class="fa-solid fa-truck-moving"></i> Mark as Picked Up
+                    </button>
+                  </form>
+                <% } else if (item.status === 'PickedUp') { %>
+                  <form action="/ngo/status/<%= item._id %>" method="POST">
+                    <input type="hidden" name="newStatus" value="Completed">
+                    <button type="submit" class="btn btn-primary btn-sm" style="background-color: var(--secondary);">
+                      <i class="fa-solid fa-circle-check"></i> Mark as Completed
+                    </button>
+                  </form>
+                <% } else if (item.status === 'Completed') { %>
+                  <span style="color: var(--success); font-weight: 600; font-size: 0.85rem;">
+                    <i class="fa-solid fa-check-double"></i> Delivered & Redistributed
+                  </span>
+                <% } else { %>
+                  <span style="color: var(--text-muted); font-size: 0.85rem;"><%= item.status %></span>
+                <% } %>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</main>
+
+<%- include('../partials/footer') %>

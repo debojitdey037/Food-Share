@@ -1,0 +1,160 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar', { activeTab: 'dashboard' }) %>
+
+<main class="main-content">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h1 style="font-size: 1.75rem; color: var(--primary-dark);">Donor Dashboard</h1>
+      <p style="color: var(--text-muted);">Manage your surplus food donation listings and track pickup progress</p>
+    </div>
+    <a href="/donor/create" class="btn btn-primary">
+      <i class="fa-solid fa-plus-circle"></i> Create New Donation Post
+    </a>
+  </div>
+
+  <%- include('../partials/flash') %>
+
+  <!-- Donated Posts Summary Metrics -->
+  <% 
+    let availableCount = 0;
+    let acceptedCount = 0;
+    let completedCount = 0;
+    let expiredOrCancelledCount = 0;
+
+    donations.forEach(d => {
+      if (d.status === 'Available') availableCount++;
+      else if (d.status === 'Accepted' || d.status === 'PickedUp') acceptedCount++;
+      else if (d.status === 'Completed') completedCount++;
+      else expiredOrCancelledCount++;
+    });
+  %>
+
+  <div class="grid-4" style="margin-bottom: 2rem;">
+    <div class="stat-card">
+      <div class="stat-icon green">
+        <i class="fa-solid fa-utensils"></i>
+      </div>
+      <div>
+        <div class="stat-value"><%= availableCount %></div>
+        <div class="stat-label">Currently Available</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon amber">
+        <i class="fa-solid fa-truck-pickup"></i>
+      </div>
+      <div>
+        <div class="stat-value"><%= acceptedCount %></div>
+        <div class="stat-label">Accepted / In Transit</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon blue">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <div>
+        <div class="stat-value"><%= completedCount %></div>
+        <div class="stat-label">Successfully Delivered</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon red">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+      </div>
+      <div>
+        <div class="stat-value"><%= expiredOrCancelledCount %></div>
+        <div class="stat-label">Expired / Cancelled</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Donations Listing Table -->
+  <h2 style="font-size: 1.3rem; margin-bottom: 0.75rem;">Your Food Donation History</h2>
+
+  <% if (donations.length === 0) { %>
+    <div class="card" style="text-align: center; padding: 3rem 1.5rem;">
+      <i class="fa-solid fa-bowl-food" style="font-size: 3rem; color: var(--text-light); margin-bottom: 1rem;"></i>
+      <h3>No Food Donations Posted Yet</h3>
+      <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Have extra food from an event, kitchen, or hostel? Share it with local NGOs!</p>
+      <a href="/donor/create" class="btn btn-primary">
+        <i class="fa-solid fa-plus"></i> Post Your First Surplus Food
+      </a>
+    </div>
+  <% } else { %>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Food Type & Quantity</th>
+            <th>Pickup Location & Pincode</th>
+            <th>Prep & Expiry Times</th>
+            <th>Status</th>
+            <th>NGO Contact Info</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% donations.forEach(function(item) { %>
+            <tr>
+              <td>
+                <strong style="font-size: 1rem;"><%= item.foodType %></strong>
+                <br>
+                <span class="user-badge" style="margin-top: 0.25rem;">
+                  <i class="fa-solid fa-weight-hanging"></i> <%= item.quantity %> <%= item.unit %>
+                </span>
+                <% if (item.notes) { %>
+                  <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.3rem;">
+                    <i class="fa-solid fa-note-sticky"></i> <%= item.notes %>
+                  </div>
+                <% } %>
+              </td>
+              <td>
+                <div><i class="fa-solid fa-location-dot" style="color: var(--danger);"></i> <%= item.pickupLocation %></div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);"><i class="fa-solid fa-map-pin"></i> Pincode: <strong><%= item.pincode %></strong></div>
+              </td>
+              <td style="font-size: 0.85rem;">
+                <div><i class="fa-solid fa-clock"></i> Prep: <%= new Date(item.prepTime).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %></div>
+                <div><i class="fa-solid fa-hourglass-half" style="color: var(--warning);"></i> Exp: <strong><%= new Date(item.expiryTime).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %></strong></div>
+              </td>
+              <td>
+                <span class="badge badge-<%= item.status %>">
+                  <i class="fa-solid fa-circle"></i> <%= item.status %>
+                </span>
+              </td>
+              <td style="font-size: 0.85rem;">
+                <% if (item.acceptedBy) { %>
+                  <div><strong><%= item.acceptedBy.organizationName || item.acceptedBy.name %></strong></div>
+                  <div><i class="fa-solid fa-phone"></i> <%= item.acceptedBy.phone %></div>
+                  <div><i class="fa-solid fa-envelope"></i> <%= item.acceptedBy.email %></div>
+                <% } else { %>
+                  <span style="color: var(--text-muted); font-style: italic;">Not claimed yet</span>
+                <% } %>
+              </td>
+              <td>
+                <% if (item.status === 'Available') { %>
+                  <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                    <a href="/donor/edit/<%= item._id %>" class="btn btn-secondary btn-sm" title="Edit Post">
+                      <i class="fa-solid fa-pen-to-square"></i> Edit
+                    </a>
+                    <form action="/donor/cancel/<%= item._id %>" method="POST" style="display: inline;">
+                      <button type="submit" class="btn btn-danger btn-sm js-confirm-cancel" title="Cancel Post">
+                        <i class="fa-solid fa-xmark"></i> Cancel
+                      </button>
+                    </form>
+                  </div>
+                <% } else { %>
+                  <span style="font-size: 0.8rem; color: var(--text-muted);"><i class="fa-solid fa-lock"></i> Locked</span>
+                <% } %>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</main>
+
+<%- include('../partials/footer') %>
